@@ -1,0 +1,59 @@
+# ===== SECURITY HEADERS (LIVE SERVER - GRADE A) =====
+<IfModule mod_headers.c>
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # X-Content-Type-Options
+    Header set X-Content-Type-Options "nosniff"
+    
+    # X-Frame-Options (Clickjacking)
+    Header always append X-Frame-Options SAMEORIGIN
+    
+    # Referrer Policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Cache Control
+    Header set Cache-Control "no-store, no-cache, must-revalidate"
+    
+    # HSTS - Force HTTPS (360 days)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    
+    # Permissions Policy
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# ===== HIDE PHP VERSION =====
+php_flag expose_php Off
+
+# ===== PROTECT CONFIG FILES =====
+<Files "to_connect.php">
+    Require all denied
+</Files>
+
+<Files "*.sql">
+    Require all denied
+</Files>
+
+<Files "*.log">
+    Require all denied
+</Files>
+
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+# ===== PREVENT DIRECTORY LISTING =====
+Options -Indexes
+
+# ===== BLOCK ACCESS TO HIDDEN FILES =====
+RedirectMatch 404 /\..*$
+
+# ===== PREVENT ACCESS TO SENSITIVE FOLDERS =====
+RedirectMatch 403 ^/database/.*$
+RedirectMatch 403 ^/includes/.*$
+RedirectMatch 403 ^/config/.*$
+
+# ===== FORCE HTTPS =====
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
